@@ -1,0 +1,131 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+}
+
+
+.area-ia {
+    border-radius: 12px;
+    border-width: 2px;
+}
+
+.conteudo-markdown {
+    font-size: 0.95rem;
+    color: #495057;
+    line-height: 1.6;
+}
+
+.conteudo-markdown p {
+    margin-bottom: 1rem;
+}
+
+.conteudo-markdown p:last-child {
+    margin-bottom: 0;
+}
+
+.conteudo-markdown strong {
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+.conteudo-markdown ul {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.conteudo-markdown li {
+    margin-bottom: 0.5rem;
+}
+
+.conteudo-markdown h1, 
+.conteudo-markdown h2, 
+.conteudo-markdown h3 {
+    font-size: 1.1rem;
+    color: #0d6efd;
+    font-weight: bold;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+.imc-scale-container {
+    position: relative;
+    width: 100%;
+    padding-top: 25px; 
+}
+
+.imc-bar {
+    display: flex;
+    height: 12px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #e9ecef;
+}
+
+.abaixopeso { width: 14%; background-color: #0dcaf0; } 
+.normal { width: 26%; background-color: #198754; }   
+.sobrepeso { width: 20%; background-color: #ffc107; }  
+.obesidade { width: 40%; background-color: #dc3545; }  
+
+.imc-marker {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%); 
+    background: #212529;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 12px;
+    transition: left 0.6s cubic-bezier(0.22, 1, 0.36, 1); 
+    z-index: 10;
+}
+
+.imc-marker::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px 5px 0;
+    border-style: solid;
+    border-color: #212529 transparent;
+}
+.skeleton-box {
+    background: #e0e0e0;
+    border-radius: 4px;
+    height: 18px;
+    margin-bottom: 12px;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+
+.conteudo-markdown ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 15px; 
+    margin-top: 15px;
+}
+
+.conteudo-markdown li {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 15px 15px 15px 45px; 
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    transition: transform 0.2s;
+}
+
+.conteudo-markdown li:hover {
+    transform: translateY(-2px); 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.conteudo-markdown li::before {
+    content: "💡";
+    position: absolute;
+    left: 15px;
+    top: 15px;
+    font-size: 1.2rem;
+}
