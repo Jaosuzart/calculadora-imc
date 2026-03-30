@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 
 // 1. CHAVES DO SUPABASE
-const supabaseUrl = "https://uzijrunggkwwjdoxujww.supabase.co";
-const supabaseKey = "sb_publishable_ySfVjyFt28Ab5LLRBsE7Yg_GGubs_qW";
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL; 
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // 2. ELEMENTOS DA TELA
