@@ -1,0 +1,15 @@
+{
+  "name": "Calculadora IMC IA",
+  "short_name": "IMC IA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#0d6efd",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3048/3048122.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
