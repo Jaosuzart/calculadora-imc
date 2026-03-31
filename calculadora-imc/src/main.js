@@ -251,15 +251,15 @@ window.calcularIMC = async function () {
 async function gerarFeedbackPersonalizado(imc, classificacao, idade, genero) {
   feedbackIA.classList.remove("d-none");
   feedbackIA.innerHTML = `
-        <div class="card border-primary shadow-sm mt-3 area-ia">
-            <div class="card-body p-4">
+        <main class="card border-primary shadow-sm mt-3 area-ia">
+            <section class="card-body p-4">
                 <h1 class="text-primary fw-bold mb-4 d-flex align-items-center">
                     <div class="spinner-border spinner-border-sm me-2" role="status"></div> A IA está formulando suas dicas...
                 </h1>
                 <div class="skeleton-box" style="width: 100%;"></div>
                 <div class="skeleton-box" style="width: 90%;"></div>
-            </div>
-        </div>`;
+            </section>
+        </main>`;
 
   try {
     const personaSelect = document.getElementById("personaIA");
