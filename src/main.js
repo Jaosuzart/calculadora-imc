@@ -29,6 +29,10 @@ async function verificarSessao() {
     telaAutenticacao.classList.replace("d-flex", "d-none");
     telaCalculadora.classList.replace("d-none", "d-flex");
     window.carregarHistorico(); // Chama o gráfico
+
+    if(window.location.hash){
+      window.history.replaceState(null, "", window.location.pathname);
+    }
   } else {
     telaCalculadora.classList.replace("d-flex", "d-none");
     telaAutenticacao.classList.replace("d-flex", "d-none");
