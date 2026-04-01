@@ -30,7 +30,7 @@ async function verificarSessao() {
     telaCalculadora.classList.replace("d-none", "d-flex");
     window.carregarHistorico(); // Chama o gráfico
 
-    if(window.location.hash){
+    if(window.location.href.includes("#")){
       window.history.replaceState(null, "", window.location.pathname);
     }
   } else {
