@@ -120,34 +120,32 @@ formAuth.addEventListener("submit", async (e) => {
   const textoOriginal = btnAcao.textContent;
   btnAcao.textContent = "Aguarde...";
   btnAcao.disabled = true;
-
+try{
   if (modoLogin) {
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password: senha,
     });
-    if (error) {
-      alert("Erro ao entrar: " + error.message);
-    } else {
+    if (error) throw error;
       telaAutenticacao.classList.replace("d-flex", "d-none");
       telaCalculadora.classList.replace("d-none", "d-flex");
       formAuth.reset();
       window.carregarHistorico(); // Carrega o gráfico
-    }
   } else {
     const { error } = await supabase.auth.signUp({ email, password: senha });
-    if (error) {
-      alert("Erro ao cadastrar: " + error.message);
-    } else {
+        if (error) throw error;
       alert("Conta criada com sucesso! Faça login.");
       modoLogin = true;
       atualizarTextosAuth();
     }
-  }
+  }catch(err){
+    console.error("Erro na autenticação: ", err);
+    alert("Ocorreu um problema: " + (err.message || "Erro desconhecido"));
+  } finally{
   btnAcao.textContent = textoOriginal;
   btnAcao.disabled = false;
+  }
 });
-
 document.getElementById("btnSair").addEventListener("click", async () => {
   await supabase.auth.signOut();
   telaCalculadora.classList.replace("d-flex", "d-none");
@@ -311,11 +309,11 @@ window.carregarHistorico = async function () {
     .from("historico_imc")
     .select("imc, created_at")
     .eq("user_id", user.id)
-    .order("created_at", { ascending: true })
+    .order("created_at", { ascending: false })
     .limit(7);
 
   if (error || !data || data.length === 0) return;
-
+  const dadosOrnenados = data.reverse();  
   const areaHistorico = document.getElementById("areaHistorico");
   if (areaHistorico) areaHistorico.classList.remove("d-none");
 
@@ -324,9 +322,11 @@ window.carregarHistorico = async function () {
     new Date(item.created_at).toLocaleDateString("pt-BR", {
       day: "2-digit",
       month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     }),
   );
-  const valoresEixoY = data.map((item) => item.imc);
+  const valoresEixoY = dadosOrnenados.map((item) => item.imc);
 
   if (meuGrafico) meuGrafico.destroy();
 
