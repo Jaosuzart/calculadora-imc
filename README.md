@@ -106,3 +106,7 @@ Todos os resultados calculados são armazenados no banco de dados e exibidos em 
 O projeto possui suporte inicial para PWA, com arquivos como manifest.json e sw.js, permitindo futura evolução para instalação no dispositivo do usuário.
 👨‍💻 Autor
 Desenvolvido por João Suzart
+
+⭐ Apoie o projeto
+
+Se esse projeto te ajudou ou você achou interessante, deixe uma ⭐ no repositório!
