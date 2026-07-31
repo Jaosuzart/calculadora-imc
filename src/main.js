@@ -1,11 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 
-// 1. CHAVES DO SUPABASE
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL; 
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase_Anon_Key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabase_Anon_Key);
 
-// 2. ELEMENTOS DA TELA
 const telaLanding = document.getElementById("telaLanding");
 const telaAutenticacao = document.getElementById("telaAutenticacao");
 const telaCalculadora = document.getElementById("telaCalculadora");
@@ -19,7 +17,6 @@ const feedbackIA = document.getElementById("feedbackIA");
 
 let modoLogin = true;
 
-// 3. VERIFICAR SESSÃO AO ABRIR O SITE
 async function verificarSessao() {
   const {
     data: { session },
@@ -41,7 +38,6 @@ async function verificarSessao() {
 }
 verificarSessao();
 
-// 4. LÓGICA DE LOGIN / CADASTRO
 function atualizarTextosAuth() {
   if (modoLogin) {
     tituloAutenticacao.textContent = "Fazer Login";
@@ -106,8 +102,12 @@ if (btnGoogle) {
     });
     if (error) {
       alert("Erro ao logar com Google: " + error.message);
-      btnGoogle.innerHTML =
-        '<img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="20" class="me-2 bg-white rounded-circle p-1"> Entrar com Google';
+      btnGoogle.textContent = "";
+      const imgIcon = document.createElement("img");  
+      imgIcon.src = "https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg";
+      imgIcon.width = 20;
+      imgIcon.className = "me-2 bg-white rounded-circle p-1";
+      btnGoogle.append(imgIcon, " Entrar com Google");
       btnGoogle.disabled = false;
     }
   });
@@ -120,20 +120,20 @@ formAuth.addEventListener("submit", async (e) => {
   const textoOriginal = btnAcao.textContent;
   btnAcao.textContent = "Aguarde...";
   btnAcao.disabled = true;
-try{
-  if (modoLogin) {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password: senha,
-    });
-    if (error) throw error;
+  try{
+    if (modoLogin) {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password: senha,
+      });
+      if (error) throw error;
       telaAutenticacao.classList.replace("d-flex", "d-none");
       telaCalculadora.classList.replace("d-none", "d-flex");
       formAuth.reset();
       window.carregarHistorico(); // Carrega o gráfico
-  } else {
-    const { error } = await supabase.auth.signUp({ email, password: senha });
-        if (error) throw error;
+    } else {
+      const { error } = await supabase.auth.signUp({ email, password: senha });
+      if (error) throw error;
       alert("Conta criada com sucesso! Faça login.");
       modoLogin = true;
       atualizarTextosAuth();
@@ -142,10 +142,11 @@ try{
     console.error("Erro na autenticação: ", err);
     alert("Ocorreu um problema: " + (err.message || "Erro desconhecido"));
   } finally{
-  btnAcao.textContent = textoOriginal;
-  btnAcao.disabled = false;
+    btnAcao.textContent = textoOriginal;
+    btnAcao.disabled = false;
   }
 });
+
 document.getElementById("btnSair").addEventListener("click", async () => {
   await supabase.auth.signOut();
   telaCalculadora.classList.replace("d-flex", "d-none");
@@ -153,11 +154,17 @@ document.getElementById("btnSair").addEventListener("click", async () => {
   window.limparIMC();
 });
 
+function injetarHTMLSeguro(elementoDestino, stringHtml) {
+  const parseador = new DOMParser();
+  const documento = parseador.parseFromString(stringHtml, 'text/html');
+  elementoDestino.replaceChildren(...documento.body.childNodes);
+}
+
 // 5. CÁLCULO DO IMC E SALVAMENTO
 window.calcularIMC = async function () {
   const peso = parseFloat(document.getElementById("peso").value);
-  const btnCalcular = document.querySelector('button[onclick="calcularIMC()"]');
-  if(btnCalcular) { btnCalcular.disabled = true; btnCalcular.innerText = "Aguarde..."; }
+  const btnCalcular = document.getElementById("btnCalcularIMC");
+  if(btnCalcular) { btnCalcular.disabled = true; btnCalcular.textContent = "Aguarde..."; }
   const altura = parseFloat(document.getElementById("altura").value);
   const idade = document.getElementById("idade")
     ? document.getElementById("idade").value
@@ -177,6 +184,7 @@ window.calcularIMC = async function () {
 
   if (isNaN(peso) || isNaN(altura) || peso <= 0 || altura <= 0 || !idade) {
     alert("Por favor, preencha todos os campos obrigatórios corretamente.");
+    if(btnCalcular) { btnCalcular.disabled = false; btnCalcular.innerText = "Calcular IMC"; }
     return;
   }
 
@@ -206,19 +214,34 @@ window.calcularIMC = async function () {
     classeCorBootstrap = "alert-dark";
   }
 
-  let mensagemMeta = "";
+  resultadoDiv.className = `alert ${classeCorBootstrap} text-center fw-bold mt-3`;
+  resultadoDiv.textContent = "";
+  
+  const strongImc = document.createElement("strong");
+  strongImc.textContent = imcArredondado;
+  resultadoDiv.append("Seu IMC: ", strongImc, document.createElement("br"), "Classificação: ", classificacao);
+
   if (metaPeso > 0) {
     const diferenca = Math.abs(peso - metaPeso).toFixed(1);
-    if (peso > metaPeso)
-      mensagemMeta = `<hr><small class="text-dark">Faltam <strong>${diferenca}kg</strong> para sua meta.</small>`;
-    else if (peso < metaPeso)
-      mensagemMeta = `<hr><small class="text-dark">Você precisa ganhar <strong>${diferenca}kg</strong> para sua meta.</small>`;
-    else
-      mensagemMeta = `<hr><small class="text-success fw-bold">Parabéns! Meta atingida! 🎉</small>`;
-  }
+    resultadoDiv.append(document.createElement("hr"));
+    
+    const tagSmall = document.createElement("small");
+    const strongDiferenca = document.createElement("strong");
+    strongDiferenca.textContent = `${diferenca}kg`;
 
-  resultadoDiv.className = `alert ${classeCorBootstrap} text-center fw-bold mt-3`;
-  resultadoDiv.innerHTML = `Seu IMC: <strong>${imcArredondado}</strong><br>Classificação: ${classificacao} ${mensagemMeta}`;
+    if (peso > metaPeso) {
+      tagSmall.className = "text-dark";
+      tagSmall.append("Faltam ", strongDiferenca, " para sua meta.");
+    } else if (peso < metaPeso) {
+      tagSmall.className = "text-dark";
+      tagSmall.append("Você precisa ganhar ", strongDiferenca, " para sua meta.");
+    } else {
+      tagSmall.className = "text-success fw-bold";
+      tagSmall.textContent = "Parabéns! Meta atingida! 🎉";
+    }
+    resultadoDiv.append(tagSmall);
+  }
+  
   resultadoDiv.classList.remove("d-none");
 
   if (marcador && containerEscala) {
@@ -228,7 +251,6 @@ window.calcularIMC = async function () {
     containerEscala.classList.remove("d-none");
   }
 
-  // Tenta salvar no Banco e atualizar o gráfico
   try {
     const {
       data: { user },
@@ -237,7 +259,7 @@ window.calcularIMC = async function () {
       await supabase
         .from("historico_imc")
         .insert([
-          { user_id: user.id, peso: peso, imc: parseFloat(imcArredondado) },
+          { user_id: user.id, peso: peso, altura: altura, imc: parseFloat(imcArredondado) },
         ]);
       window.carregarHistorico();
     }
@@ -245,14 +267,13 @@ window.calcularIMC = async function () {
     console.error("Erro ao salvar histórico:", err);
   }
 
-  // Chama a IA
   gerarFeedbackPersonalizado(imcArredondado, classificacao, idade, genero);
 };
 
-// 6. COMUNICAÇÃO COM A IA
 async function gerarFeedbackPersonalizado(imc, classificacao, idade, genero) {
   feedbackIA.classList.remove("d-none");
-  feedbackIA.innerHTML = `
+  
+  const templateLoading = `
         <main class="card border-primary shadow-sm mt-3 area-ia">
             <section class="card-body p-4">
                 <h1 class="text-primary fw-bold mb-4 d-flex align-items-center">
@@ -262,6 +283,7 @@ async function gerarFeedbackPersonalizado(imc, classificacao, idade, genero) {
                 <div class="skeleton-box" style="width: 90%;"></div>
             </section>
         </main>`;
+  injetarHTMLSeguro(feedbackIA, templateLoading);
 
   try {
     const personaSelect = document.getElementById("personaIA");
@@ -279,25 +301,34 @@ async function gerarFeedbackPersonalizado(imc, classificacao, idade, genero) {
     const htmlBruto = window.marked.parse(data.texto_gerado);
     const htmlSeguro = window.DOMPurify.sanitize(htmlBruto);
 
-    feedbackIA.innerHTML = `
+    const templateResultado = `
             <div class="card border-primary bg-white shadow-sm mt-3 area-ia">
                 <div class="card-body p-4">
                     <h6 class="card-title text-primary fw-bold mb-3">✨ Análise Personalizada</h6>
                     <div class="card-text conteudo-markdown">${htmlSeguro}</div>
                 </div>
             </div>`;
+    injetarHTMLSeguro(feedbackIA, templateResultado);
+
   } catch (err) {
     console.error("Erro da IA:", err);
-    feedbackIA.innerHTML = `<div class="alert alert-danger small mt-3"><strong>Aviso:</strong> ${err.message || "Erro na IA"}</div>`;
+    
+    feedbackIA.textContent = ""; 
+    const alertDiv = document.createElement("div");
+    alertDiv.className = "alert alert-danger small mt-3";
+    const alertStrong = document.createElement("strong");
+    alertStrong.textContent = "Aviso: ";
+    alertDiv.append(alertStrong, err.message || "Erro na IA");
+    feedbackIA.append(alertDiv);
+
   } finally{
-    const btnCalcular = document.querySelector('button[onclick="calcularIMC()"]');
+    const btnCalcular = document.getElementById("btnCalcularIMC");
     if(btnCalcular) { 
         btnCalcular.disabled = false; 
         btnCalcular.innerText = "Calcular IMC"; }
   }
 }
 
-// 7. GRÁFICO (CHART.JS)
 let meuGrafico = null;
 window.carregarHistorico = async function () {
   const {
@@ -356,7 +387,6 @@ window.carregarHistorico = async function () {
   });
 };
 
-// 8. LIMPAR DADOS
 window.limparIMC = function () {
   document.getElementById("formCalculadora").reset();
   document.getElementById("resultadoImc").classList.add("d-none");
@@ -369,6 +399,16 @@ window.limparIMC = function () {
   }
   if (feedbackIA) {
     feedbackIA.classList.add("d-none");
-    feedbackIA.innerHTML = "";
+    feedbackIA.textContent = "";
   }
 };
+
+const btnCalcularIMC = document.getElementById("btnCalcularIMC");
+if (btnCalcularIMC) {
+  btnCalcularIMC.addEventListener("click", window.calcularIMC);
+}
+
+const btnLimparIMC = document.getElementById("btnLimparIMC");
+if (btnLimparIMC) {
+  btnLimparIMC.addEventListener("click", window.limparIMC);
+}
