@@ -6,21 +6,23 @@ const corsHeaders = {
 }
 
 serve(async (req: any) => {
-  // Lida com a requisição de preflight do navegador (CORS)
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const { imc, classificacao, idade, genero } = await req.json()
+    const { imc, classificacao, idade, genero, persona = "amigavel" } = await req.json()
 
-    // Validação básica para garantir que os dados chegaram do frontend
     if (!imc || !classificacao || !idade || !genero) {
         throw new Error("Faltam parâmetros na requisição (imc, classificacao, idade ou genero).");
     }
 
+let tom = "um consultor de saúde empático e encorajador";
+    if (persona === "treinador") tom = "um treinador motivacional e enérgico";
+    if (persona === "medico") tom = "um médico, com tom científico, sério e técnico";
+
     const prompt = `
-      Aja como um consultor de saúde empático e encorajador. 
+      Aja como ${tom}. 
       O usuário tem ${idade} anos, do gênero ${genero}, com um IMC de ${imc} (Classificação: ${classificacao}).
       Escreva um parágrafo curto e gentil explicando o que esse número significa para o contexto dele.
       Depois, forneça 2 dicas muito práticas: uma sobre alimentação básica e outra sobre movimento leve/exercício.
@@ -28,34 +30,40 @@ serve(async (req: any) => {
       Utilize Markdown (negrito em partes importantes e listas de marcadores para as dicas).
     `;
 
-    const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
+    // Pega a chave da Groq nos Secrets do Supabase
+    const groqApiKey = Deno.env.get('GROQ_API_KEY');
     
-    if (!geminiApiKey) {
-      throw new Error("Atenção: A variável GEMINI_API_KEY não está configurada nos Secrets do Supabase.");
+    if (!groqApiKey) {
+      throw new Error("Atenção: A variável GROQ_API_KEY não está configurada nos Secrets do Supabase.");
     }
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`, {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${groqApiKey}` 
       },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
+        model: 'llama-3.1-8b-instant',
+        messages: [
+            { role: 'user', content: prompt }
+        ],
+        temperature: 0.7
       }),
     });
 
     const data = await response.json();
     
     if (data.error) {
-        console.error("Erro da API do Google:", data.error);
-        throw new Error(`Erro do Google Gemini: ${data.error.message}`);
+        console.error("Erro da API da Groq:", data.error);
+        throw new Error(`Erro da Groq: ${data.error.message}`);
     }
 
-    if (!data.candidates || data.candidates.length === 0) {
-        throw new Error("A API do Gemini não retornou nenhum texto.");
+    if (!data.choices || data.choices.length === 0) {
+        throw new Error("A API da Groq não retornou nenhum texto.");
     }
     
-    const texto_gerado = data.candidates[0].content.parts[0].text;
+    const texto_gerado = data.choices[0].message.content;
 
     return new Response(
       JSON.stringify({ texto_gerado }),
@@ -65,7 +73,7 @@ serve(async (req: any) => {
     console.error("Erro na Edge Function:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 400,
+      status: 400, 
     })
   }
 })

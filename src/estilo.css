@@ -129,3 +129,26 @@ body {
     top: 15px;
     font-size: 1.2rem;
 }
+
+.caixa-login{
+    max-width: 500px;
+    width: 100%;
+    padding: 2.5rem;
+}
+
+@media(min-width: 768px){
+    .caixa-login{
+        padding: 3.5rem;
+    }
+}
+
+.btn-google-hover:hover{
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.btn-google-hover img{
+    margin-right: 10px;
+
+    
+}
