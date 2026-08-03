@@ -2,7 +2,11 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL; 
 const supabase_Anon_Key = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabase_Anon_Key);
+const supabase = createClient(supabaseUrl, supabase_Anon_Key,{
+  auth: {
+  flowType: "pkce", // Use PKCE flow for better security
+  },
+});
 
 const telaLanding = document.getElementById("telaLanding");
 const telaAutenticacao = document.getElementById("telaAutenticacao");
