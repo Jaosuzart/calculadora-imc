@@ -166,10 +166,10 @@ function injetarHTMLSeguro(elementoDestino, stringHtml) {
 
 // 5. CÁLCULO DO IMC E SALVAMENTO
 window.calcularIMC = async function () {
-  const peso = parseFloat(document.getElementById("peso").value);
+  const peso = parseFloat(document.getElementById("peso").value.replace(',',  '.'));
   const btnCalcular = document.getElementById("btnCalcularIMC");
   if(btnCalcular) { btnCalcular.disabled = true; btnCalcular.textContent = "Aguarde..."; }
-  const altura = parseFloat(document.getElementById("altura").value);
+  const altura = parseFloat(document.getElementById("altura").value.replace(',',  '.'));
   const idade = document.getElementById("idade")
     ? document.getElementById("idade").value
     : null;
@@ -179,7 +179,7 @@ window.calcularIMC = async function () {
   const metaPesoElement = document.getElementById("metaPeso");
   const metaPeso =
     metaPesoElement && metaPesoElement.value
-      ? parseFloat(metaPesoElement.value)
+      ? parseFloat(metaPesoElement.value.replace(',', '.'))
       : 0;
 
   const resultadoDiv = document.getElementById("resultadoImc");
