@@ -108,7 +108,7 @@ if (btnGoogle) {
       alert("Erro ao logar com Google: " + error.message);
       btnGoogle.textContent = "";
       const imgIcon = document.createElement("img");  
-      imgIcon.src = "https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg";
+      imgIcon.src = "/google-logo.png";
       imgIcon.width = 20;
       imgIcon.className = "me-2 bg-white rounded-circle p-1";
       btnGoogle.append(imgIcon, " Entrar com Google");
