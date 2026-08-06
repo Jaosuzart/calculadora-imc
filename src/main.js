@@ -334,6 +334,20 @@ async function gerarFeedbackPersonalizado(imc, classificacao, idade, genero) {
 }
 
 let meuGrafico = null;
+function carregarDependenciaGrafico(){
+  return new Promisse((resolve,reject)=>{
+    if(window.Chart){
+      resolve();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/chart.js";
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  })
+
+}
 window.carregarHistorico = async function () {
   const {
     data: { user },
@@ -351,6 +365,8 @@ window.carregarHistorico = async function () {
   const dadosOrnenados = data.reverse();  
   const areaHistorico = document.getElementById("areaHistorico");
   if (areaHistorico) areaHistorico.classList.remove("d-none");
+
+    await carregarDependenciaGrafico();
 
   const ctx = document.getElementById("graficoHistorico").getContext("2d");
   const labelsEixoX = data.map((item) =>
