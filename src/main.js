@@ -312,14 +312,13 @@ async function gerarFeedbackPersonalizado(imc, classificacao, idade, genero) {
     const personaSelect = document.getElementById("personaIA");
     const persona = personaSelect ? personaSelect.value : "amigavel";
 
-    const { data, error } = await supabase.functions.invoke(
-      "gerar-dicas-saude",
-      {
-        body: { imc, classificacao, idade, genero, persona },
-      },
-    );
-
-    if (error) throw error;
+    // Usando o cliente do Supabase para chamar a Edge Function,
+    // assim não precisamos expor ou fixar 'localhost' e funciona automaticamente em produção.
+    const { data, error } = await supabase.functions.invoke('gerar-dicas-saude', {
+      body: { imc, classificacao, idade, genero, persona }
+    });
+    
+    if (error) throw new Error(error.message || "Erro na Edge Function");
 
     const htmlBruto = window.marked.parse(data.texto_gerado);
     const htmlSeguro = window.DOMPurify.sanitize(htmlBruto);
